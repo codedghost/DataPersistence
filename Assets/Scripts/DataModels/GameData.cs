@@ -8,7 +8,8 @@ namespace Assets.Scripts.DataModels
     [Serializable]
     public class GameData
     {
-        public string RecentUsername { get; set; }
-        public List<HighScore> HighScores { get; set; }
+        public string RecentUsername;
+        public List<HighScore> HighScores;
+        public HighScore HighScore;
     }
 }

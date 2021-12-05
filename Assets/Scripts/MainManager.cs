@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.DataModels;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,6 +13,7 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HighScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -37,6 +39,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        UpdateHighscoreText();
     }
 
     private void Update()
@@ -60,6 +64,10 @@ public class MainManager : MonoBehaviour
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
+            else if (Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return))
+            {
+                SceneManager.LoadScene(ProjectConstants.Scene.HighscoreId);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -72,10 +80,37 @@ public class MainManager : MonoBehaviour
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+
+        var gameData = DataManager.Instance.GameData;
+        if (gameData.HighScore == null || gameData.HighScore.Score < m_Points)
+        {
+            DataManager.Instance.GameData.HighScore = new HighScore
+            {
+                Username = gameData.RecentUsername,
+                Score = m_Points
+            };
+
+            UpdateHighscoreText();
+        }
+    }
+
+    void UpdateHighscoreText()
+    {
+        var highscore = DataManager.Instance.GameData.HighScore;
+
+        HighScoreText.text = $"Best Score: {highscore?.Username}: {highscore?.Score}";
     }
 
     public void GameOver()
     {
+        DataManager.Instance.GameData.HighScores.Add(new HighScore
+        {
+            Username = DataManager.Instance.GameData.RecentUsername,
+            Score = m_Points
+        });
+
+        DataManager.Instance.SaveData();
+
         m_GameOver = true;
         GameOverText.SetActive(true);
     }

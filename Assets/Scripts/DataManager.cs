@@ -42,6 +42,9 @@ public class DataManager : MonoBehaviour
             var json = File.ReadAllText(ProjectConstants.GameDataDirectoryAndFileName);
 
             this.GameData = JsonUtility.FromJson<GameData>(json);
+
+            if (GameData.RecentUsername == null) GameData.RecentUsername = string.Empty;
+            if (GameData.HighScores == null) GameData.HighScores = new List<HighScore>();
         }
     }
 }
